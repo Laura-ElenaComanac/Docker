@@ -1,0 +1,13 @@
+FROM node:16
+
+WORKDIR /app1
+COPY package*.json ./
+COPY src/assets/projects.jpg ./
+COPY . .
+RUN npm install --save-dev webpack-cli@latest
+RUN npm install file-loader --save-dev
+RUN npm install
+
+EXPOSE 3001
+
+CMD ["npm", "start"]
