@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  ionic-app:
+    image: "lauraelena/ionic-app"
+    build:
+      context: ./ionic-app
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+  nest-app:
+    image: "lauraelena/nest-app"
+    build:
+      context: ./nest-app
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+  to-do-app:
+    image: "lauraelena/to-do-app"
+    build:
+      context: ./to-do-app
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+  app1:
+    build:
+      context: ./basic-host-remote/app1
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    container_name: app1
+  app2:
+    build:
+      context: './basic-host-remote/app2'
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    container_name: app2
+  app:
+    build: ./nestjs-rabbitmq-microservice/app 
+    init: true
+    ports:
+      - 7000:7000
+    environment:
+      RABBITMQ_HOST: rabbitmq
+  service:
+    build: ./nestjs-rabbitmq-microservice/service
+    environment:
+      RABBITMQ_HOST: rabbitmq
+  nginx:
+    image: nginx:1.17.9
+    ports:
+      - "80:80"
+    volumes:
+      - ./nestjs-rabbitmq-microservice/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+      - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    environment:
+      RABBITMQ_HOST: rabbitmq
